@@ -1,0 +1,14 @@
+services:
+  officecli-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: officecli-mcp-sse
+    ports:
+      - "8010:8010"
+    volumes:
+      - ./data:/data
+    restart: unless-stopped
+    environment:
+      - PORT=8010
+      - HOST=0.0.0.0
