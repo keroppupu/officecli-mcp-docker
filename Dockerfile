@@ -31,5 +31,5 @@ EXPOSE 8010
 ENV PORT=8010
 ENV HOST=0.0.0.0
 
-# Run supergateway to bridge stdio to SSE
-CMD ["sh", "-c", "supergateway --stdio 'officecli mcp' --host ${HOST} --port ${PORT} --outputTransport sse"]
+# Run supergateway to bridge stdio to SSE (with CORS and healthcheck enabled)
+CMD ["sh", "-c", "supergateway --stdio 'officecli mcp' --host ${HOST} --port ${PORT} --outputTransport sse --cors --healthEndpoint /healthz"]
