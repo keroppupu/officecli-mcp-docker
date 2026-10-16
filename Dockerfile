@@ -1,9 +1,10 @@
 FROM node:22-bookworm-slim
 
-# Install required dependencies
+# Install required dependencies (libicu72 is required for .NET runtime)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     curl \
     ca-certificates \
+    libicu72 \
     && rm -rf /var/lib/apt/lists/*
 
 # Install supergateway globally
