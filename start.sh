@@ -2,7 +2,7 @@
 set -e
 
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-IMAGE_NAME="officecli-mcp-rhel-x86:latest"
+IMAGE_NAME="officecli-mcp-rhel-x86:ver0.2"
 TAR_FILE="${DIR}/officecli-mcp-rhel-x86.tar.gz"
 CONTAINER_NAME="officecli-mcp-sse"
 PORT="${PORT:-8010}"
@@ -20,11 +20,18 @@ fi
 
 echo "=== Using container runtime: ${RUNTIME} ==="
 
-# Check if image exists; if not, try to load from tar.gz
-if ! ${RUNTIME} image inspect "${IMAGE_NAME}" >/dev/null 2>&1; then
+# Force reload if requested via argument or if image does not exist
+if [ "$1" = "--reload" ] || [ "$1" = "-r" ] || ! ${RUNTIME} image inspect "${IMAGE_NAME}" >/dev/null 2>&1; then
     if [ -f "${TAR_FILE}" ]; then
         echo "=== Loading image from ${TAR_FILE} ==="
         ${RUNTIME} load < "${TAR_FILE}"
+    fi
+fi
+
+# Fallback check if ver0.2 or latest is available
+if ! ${RUNTIME} image inspect "${IMAGE_NAME}" >/dev/null 2>&1; then
+    if ${RUNTIME} image inspect "officecli-mcp-rhel-x86:latest" >/dev/null 2>&1; then
+        IMAGE_NAME="officecli-mcp-rhel-x86:latest"
     else
         echo "Error: Image '${IMAGE_NAME}' not found and '${TAR_FILE}' does not exist." >&2
         exit 1
@@ -41,7 +48,7 @@ if ${RUNTIME} ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
 fi
 
 # Start the container
-echo "=== Starting container ${CONTAINER_NAME} on port ${PORT} ==="
+echo "=== Starting container ${CONTAINER_NAME} using image ${IMAGE_NAME} on port ${PORT} ==="
 ${RUNTIME} run -d \
     --name "${CONTAINER_NAME}" \
     -p "${PORT}:8010" \
